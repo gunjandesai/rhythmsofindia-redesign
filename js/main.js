@@ -1,316 +1,122 @@
-/* ============================================
-   RHYTHMS OF INDIA - Main JavaScript
-   ============================================ */
-
 document.addEventListener('DOMContentLoaded', () => {
-
-    // ---------- Preloader ----------
+    // Preloader
     const preloader = document.getElementById('preloader');
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            preloader.classList.add('loaded');
-        }, 500);
-    });
-    // Fallback - hide preloader after 3 seconds max
-    setTimeout(() => {
-        preloader.classList.add('loaded');
-    }, 3000);
+    window.addEventListener('load', () => setTimeout(() => preloader.classList.add('loaded'), 400));
+    setTimeout(() => preloader.classList.add('loaded'), 3000);
 
-    // ---------- Navbar scroll effect ----------
+    // Navbar
     const navbar = document.getElementById('navbar');
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('section[id]');
+    const isHome = window.location.pathname === '/' || window.location.pathname.endsWith('index.html');
 
-    function handleNavScroll() {
-        if (window.scrollY > 80) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
+    function handleScroll() {
+        if (window.scrollY > 80) navbar.classList.add('scrolled');
+        else if (isHome) navbar.classList.remove('scrolled');
+        // Back to top
+        const btn = document.getElementById('backToTop');
+        if (btn) btn.classList.toggle('visible', window.scrollY > 500);
     }
 
-    // Active nav link based on scroll position
-    function updateActiveNav() {
+    function updateActiveNavOnScroll() {
+        if (!isHome) return;
         const scrollY = window.scrollY + 100;
-        sections.forEach(section => {
-            const top = section.offsetTop;
-            const height = section.offsetHeight;
-            const id = section.getAttribute('id');
-            if (scrollY >= top && scrollY < top + height) {
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === '#' + id) {
-                        link.classList.add('active');
-                    }
+        sections.forEach(sec => {
+            const top = sec.offsetTop, h = sec.offsetHeight, id = sec.getAttribute('id');
+            if (scrollY >= top && scrollY < top + h) {
+                navLinks.forEach(l => {
+                    l.classList.remove('active');
+                    if (l.getAttribute('href') === '#' + id) l.classList.add('active');
                 });
             }
         });
     }
 
-    window.addEventListener('scroll', () => {
-        handleNavScroll();
-        updateActiveNav();
-        handleBackToTop();
-    });
+    window.addEventListener('scroll', () => { handleScroll(); updateActiveNavOnScroll(); });
 
-    // ---------- Mobile Navigation ----------
+    // Mobile Nav
     const navToggle = document.getElementById('navToggle');
     const navMenu = document.getElementById('navMenu');
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => { navToggle.classList.toggle('active'); navMenu.classList.toggle('active'); });
+        navLinks.forEach(l => l.addEventListener('click', () => { navToggle.classList.remove('active'); navMenu.classList.remove('active'); }));
+        document.addEventListener('click', e => { if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) { navToggle.classList.remove('active'); navMenu.classList.remove('active'); }});
+    }
 
-    navToggle.addEventListener('click', () => {
-        navToggle.classList.toggle('active');
-        navMenu.classList.toggle('active');
-    });
-
-    // Close menu on link click
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            navToggle.classList.remove('active');
-            navMenu.classList.remove('active');
-        });
-    });
-
-    // Close menu on outside click
-    document.addEventListener('click', (e) => {
-        if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) {
-            navToggle.classList.remove('active');
-            navMenu.classList.remove('active');
-        }
-    });
-
-    // ---------- Hero Particles ----------
-    const particlesContainer = document.getElementById('heroParticles');
-    if (particlesContainer) {
-        for (let i = 0; i < 30; i++) {
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.width = (Math.random() * 4 + 2) + 'px';
-            particle.style.height = particle.style.width;
-            particle.style.animationDuration = (Math.random() * 10 + 8) + 's';
-            particle.style.animationDelay = (Math.random() * 10) + 's';
-            particlesContainer.appendChild(particle);
+    // Particles (home only)
+    const pc = document.getElementById('heroParticles');
+    if (pc) {
+        for (let i = 0; i < 25; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            p.style.left = Math.random() * 100 + '%';
+            p.style.width = (Math.random() * 4 + 2) + 'px';
+            p.style.height = p.style.width;
+            p.style.animationDuration = (Math.random() * 10 + 8) + 's';
+            p.style.animationDelay = (Math.random() * 10) + 's';
+            pc.appendChild(p);
         }
     }
 
-    // ---------- Stats Counter Animation ----------
-    const statNumbers = document.querySelectorAll('.stat-number');
-    let statsAnimated = false;
+    // Scroll animations
+    const animEls = document.querySelectorAll(
+        '.schedule-card, .benefit-item, .instructor-detail-grid, .studio-detail, ' +
+        '.news-card, .gallery-item, .section-header, .class-text-block, ' +
+        '.advanced-content, .dance-school-content, .contact-form-wrapper, .contact-sidebar'
+    );
+    animEls.forEach((el, i) => { el.classList.add('fade-in'); el.style.transitionDelay = (i % 4) * .08 + 's'; });
+    const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: .1, rootMargin: '0px 0px -40px 0px' });
+    animEls.forEach(el => obs.observe(el));
 
-    function animateCounters() {
-        statNumbers.forEach(stat => {
-            const target = parseInt(stat.getAttribute('data-target'), 10);
-            const duration = 2000;
-            const step = target / (duration / 16);
-            let current = 0;
-
-            function updateCount() {
-                current += step;
-                if (current < target) {
-                    stat.textContent = Math.floor(current);
-                    requestAnimationFrame(updateCount);
-                } else {
-                    stat.textContent = target;
-                }
-            }
-            updateCount();
-        });
-        statsAnimated = true;
-    }
-
-    // Intersection Observer for stats
-    const statsSection = document.getElementById('stats');
-    if (statsSection) {
-        const statsObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !statsAnimated) {
-                    animateCounters();
-                }
-            });
-        }, { threshold: 0.3 });
-        statsObserver.observe(statsSection);
-    }
-
-    // ---------- Scroll Animations ----------
-    function addScrollAnimations() {
-        const animatedElements = document.querySelectorAll(
-            '.class-card, .detail-block, .instructor-card, .studio-card, ' +
-            '.contact-card, .gallery-item, .about-image, .about-text, ' +
-            '.section-header, .testimonial-slider, .cta-content, ' +
-            '.contact-form-wrapper, .explore-section'
-        );
-
-        animatedElements.forEach((el, i) => {
-            el.classList.add('fade-in');
-            el.style.transitionDelay = (i % 4) * 0.1 + 's';
-        });
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-        animatedElements.forEach(el => observer.observe(el));
-    }
-
-    addScrollAnimations();
-
-    // ---------- Testimonial Slider ----------
-    const track = document.getElementById('testimonialTrack');
-    const prevBtn = document.getElementById('testimonialPrev');
-    const nextBtn = document.getElementById('testimonialNext');
-    const dotsContainer = document.getElementById('testimonialDots');
-
-    if (track && prevBtn && nextBtn && dotsContainer) {
-        const cards = track.querySelectorAll('.testimonial-card');
-        const totalSlides = cards.length;
-        let currentSlide = 0;
-        let autoSlideInterval;
-
-        // Create dots
-        cards.forEach((_, i) => {
-            const dot = document.createElement('button');
-            dot.classList.add('dot');
-            dot.setAttribute('aria-label', 'Go to testimonial ' + (i + 1));
-            if (i === 0) dot.classList.add('active');
-            dot.addEventListener('click', () => goToSlide(i));
-            dotsContainer.appendChild(dot);
-        });
-
-        const dots = dotsContainer.querySelectorAll('.dot');
-
-        function goToSlide(index) {
-            currentSlide = index;
-            track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
-            dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
-        }
-
-        prevBtn.addEventListener('click', () => {
-            goToSlide(currentSlide === 0 ? totalSlides - 1 : currentSlide - 1);
-            resetAutoSlide();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            goToSlide(currentSlide === totalSlides - 1 ? 0 : currentSlide + 1);
-            resetAutoSlide();
-        });
-
-        function startAutoSlide() {
-            autoSlideInterval = setInterval(() => {
-                goToSlide(currentSlide === totalSlides - 1 ? 0 : currentSlide + 1);
-            }, 5000);
-        }
-
-        function resetAutoSlide() {
-            clearInterval(autoSlideInterval);
-            startAutoSlide();
-        }
-
-        startAutoSlide();
-    }
-
-    // ---------- Gallery Lightbox ----------
+    // Lightbox
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightboxImg');
-    const lightboxClose = document.querySelector('.lightbox-close');
-    const galleryItems = document.querySelectorAll('.gallery-item');
-
-    galleryItems.forEach(item => {
+    const close = document.querySelector('.lightbox-close');
+    document.querySelectorAll('.gallery-item').forEach(item => {
         item.addEventListener('click', () => {
             const img = item.querySelector('img');
-            if (img) {
-                lightboxImg.src = img.src;
-                lightboxImg.alt = img.alt;
-                lightbox.classList.add('active');
-                lightbox.setAttribute('aria-hidden', 'false');
+            if (img && lightbox && lightboxImg) {
+                lightboxImg.src = img.src; lightboxImg.alt = img.alt;
+                lightbox.classList.add('active'); lightbox.setAttribute('aria-hidden', 'false');
                 document.body.style.overflow = 'hidden';
             }
         });
     });
+    function closeLB() { if (lightbox) { lightbox.classList.remove('active'); lightbox.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }}
+    if (close) close.addEventListener('click', closeLB);
+    if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLB(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
 
-    function closeLightbox() {
-        lightbox.classList.remove('active');
-        lightbox.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-    }
-
-    if (lightboxClose) {
-        lightboxClose.addEventListener('click', closeLightbox);
-    }
-
-    if (lightbox) {
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-        });
-    }
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-            closeLightbox();
-        }
-    });
-
-    // ---------- Contact Form ----------
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+    // Contact form
+    const form = document.getElementById('contactForm');
+    if (form) {
+        form.addEventListener('submit', e => {
             e.preventDefault();
-
-            const name = document.getElementById('contactName').value.trim();
-            const email = document.getElementById('contactEmail').value.trim();
-            const message = document.getElementById('contactMessage').value.trim();
-
-            if (!name || !email || !message) {
-                alert('Please fill in all required fields.');
-                return;
-            }
-
-            // Simple email format check
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-
-            // In production, this would send to a server endpoint
+            const n = document.getElementById('contactName').value.trim();
+            const em = document.getElementById('contactEmail').value.trim();
+            const msg = document.getElementById('contactMessage').value.trim();
+            if (!n || !em || !msg) { alert('Please fill in all required fields.'); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { alert('Please enter a valid email.'); return; }
             alert('Thank you for your message! We will get back to you soon.');
-            contactForm.reset();
+            form.reset();
         });
     }
 
-    // ---------- Back to Top Button ----------
-    const backToTopBtn = document.getElementById('backToTop');
+    // Back to top
+    const btt = document.getElementById('backToTop');
+    if (btt) btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-    function handleBackToTop() {
-        if (window.scrollY > 500) {
-            backToTopBtn.classList.add('visible');
-        } else {
-            backToTopBtn.classList.remove('visible');
-        }
-    }
-
-    if (backToTopBtn) {
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
-
-    // ---------- Smooth scroll for anchor links ----------
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', (e) => {
-            const targetId = anchor.getAttribute('href');
-            if (targetId === '#') return;
-            const target = document.querySelector(targetId);
+    // Smooth scroll for anchors
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const href = a.getAttribute('href');
+            if (href === '#') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+            const target = document.querySelector(href);
             if (target) {
                 e.preventDefault();
-                const offset = navbar.offsetHeight + 10;
-                const top = target.getBoundingClientRect().top + window.scrollY - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
+                const offset = navbar ? navbar.offsetHeight + 10 : 80;
+                window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' });
             }
         });
     });
-
 });
