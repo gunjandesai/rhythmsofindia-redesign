@@ -1,4 +1,13 @@
 User-agent: *
 Allow: /
+Disallow: /node_modules/
+Disallow: /deploy.zip
+
+# Specifically welcome Bing and Google crawlers
+User-agent: Bingbot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
 
 Sitemap: https://rhythmsofindia-wus2.azurewebsites.net/sitemap.xml
