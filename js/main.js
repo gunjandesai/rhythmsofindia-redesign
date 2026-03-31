@@ -90,15 +90,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // Contact form
     const form = document.getElementById('contactForm');
     if (form) {
-        form.addEventListener('submit', e => {
+        form.addEventListener('submit', async e => {
             e.preventDefault();
             const n = document.getElementById('contactName').value.trim();
             const em = document.getElementById('contactEmail').value.trim();
+            const subj = document.getElementById('contactSubject').value.trim();
             const msg = document.getElementById('contactMessage').value.trim();
             if (!n || !em || !msg) { alert('Please fill in all required fields.'); return; }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { alert('Please enter a valid email.'); return; }
-            alert('Thank you for your message! We will get back to you soon.');
-            form.reset();
+
+            const btn = form.querySelector('button[type="submit"]');
+            const origText = btn.textContent;
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+
+            try {
+                const resp = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: n, email: em, subject: subj, message: msg })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    alert('Thank you! Your message has been sent successfully.');
+                    form.reset();
+                } else {
+                    alert(data.message || 'Failed to send message. Please try again.');
+                }
+            } catch (err) {
+                alert('Network error. Please try again later.');
+            } finally {
+                btn.textContent = origText;
+                btn.disabled = false;
+            }
         });
     }
 
