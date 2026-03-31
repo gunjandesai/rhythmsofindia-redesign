@@ -1,9 +1,13 @@
 const express = require('express');
+const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// Enable gzip compression for all responses
+app.use(compression());
 
 // Parse JSON bodies for the contact form
 app.use(express.json());
@@ -79,7 +83,8 @@ app.get('*', (req, res) => {
     if (fs.existsSync(tryPath)) {
         return res.sendFile(tryPath);
     }
-    res.sendFile(path.join(__dirname, 'index.html'));
+    // Serve 404 page for unknown routes
+    res.status(404).sendFile(path.join(__dirname, '404.html'));
 });
 
 app.listen(PORT, () => {
