@@ -8,11 +8,6 @@ const PORT = process.env.PORT || 8080;
 // Parse JSON bodies for the contact form
 app.use(express.json());
 
-// Serve static files from root
-app.use(express.static(path.join(__dirname), {
-    extensions: ['html', 'htm']
-}));
-
 // Contact form email endpoint
 app.post('/api/contact', async (req, res) => {
     const { name, email, subject, message } = req.body;
@@ -72,6 +67,11 @@ app.post('/api/contact', async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to send message. Please try again later.' });
     }
 });
+
+// Serve static files from root
+app.use(express.static(path.join(__dirname), {
+    extensions: ['html', 'htm']
+}));
 
 // SPA fallback for clean URLs - serve index.html for directory requests
 app.get('*', (req, res) => {
