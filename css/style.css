@@ -48,11 +48,11 @@ ul{list-style:none}
 /* Navbar */
 .navbar{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:20px 0;transition:var(--transition)}
 .navbar.scrolled{background:rgba(26,26,46,.95);backdrop-filter:blur(10px);padding:12px 0;box-shadow:0 2px 20px rgba(0,0,0,.3)}
-.nav-container{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center}
-.logo-text{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--white);letter-spacing:1px}
-.nav-menu{display:flex;align-items:center;gap:4px}
-.nav-link{color:rgba(255,255,255,.85);font-size:.82rem;font-weight:500;padding:8px 12px;border-radius:6px;letter-spacing:.5px;text-transform:uppercase}
+.nav-container{max-width:1400px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;flex-shrink:0}
+.logo-text{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--white);letter-spacing:1px}
+.nav-menu{display:flex;align-items:center;gap:2px;flex-wrap:nowrap}
+.nav-link{color:rgba(255,255,255,.85);font-size:.75rem;font-weight:500;padding:8px 10px;border-radius:6px;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
 .nav-link:hover,.nav-link.active{color:var(--white);background:rgba(255,255,255,.1)}
 .nav-cta{background:var(--primary)!important;color:var(--white)!important;border-radius:25px!important;padding:10px 20px!important}
 .nav-cta:hover{background:var(--primary-dark)!important;transform:translateY(-1px)}
