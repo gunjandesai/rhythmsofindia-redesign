@@ -62,7 +62,20 @@ app.post('/api/contact', async (req, res) => {
         };
 
         const poller = await client.beginSend(emailMessage);
-        const result = await poller.pollUntilDone();
+        // Poll with a 30-second timeout
+        const timeout = 30000;
+        const start = Date.now();
+        let result;
+        while (!poller.isDone()) {
+            if (Date.now() - start > timeout) {
+                // Email was accepted by ACS, just hasn't finished polling
+                console.log('Email accepted, polling timed out but send was initiated');
+                return res.json({ success: true, message: 'Message sent successfully!' });
+            }
+            await poller.poll();
+            await new Promise(r => setTimeout(r, 1000));
+        }
+        result = poller.getResult();
         console.log('Email sent, status:', result.status);
 
         res.json({ success: true, message: 'Message sent successfully!' });
