@@ -2,7 +2,7 @@ const express = require('express');
 const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
-const nodemailer = require('nodemailer');
+const { EmailClient } = require('@azure/communication-email');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
@@ -27,43 +27,43 @@ app.post('/api/contact', async (req, res) => {
         return res.status(400).json({ success: false, message: 'Invalid email address.' });
     }
 
-    // Check SMTP is configured
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-        console.error('SMTP credentials not configured');
+    // Check ACS is configured
+    if (!process.env.ACS_CONNECTION_STRING || !process.env.ACS_SENDER_EMAIL) {
+        console.error('Azure Communication Services not configured');
         return res.status(500).json({ success: false, message: 'Email service not configured.' });
     }
 
+    // Sanitize inputs
+    const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
     try {
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.office365.com',
-            port: parseInt(process.env.SMTP_PORT || '587', 10),
-            secure: false,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            },
-            tls: { ciphers: 'SSLv3' }
-        });
-
+        const client = new EmailClient(process.env.ACS_CONNECTION_STRING);
         const toEmail = process.env.CONTACT_TO_EMAIL || 'skg@rhythmsofindia.net';
-        const fromEmail = process.env.SMTP_USER;
 
-        await transporter.sendMail({
-            from: `"Rhythms of India Website" <${fromEmail}>`,
-            to: toEmail,
-            replyTo: email,
-            subject: subject ? `Website Contact: ${subject}` : `Website Contact from ${name}`,
-            html: `
-                <h2>New Contact Form Message</h2>
-                <table style="border-collapse:collapse;width:100%;max-width:600px;">
-                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Name</td><td style="padding:8px;border:1px solid #ddd;">${name.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</td></tr>
-                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Email</td><td style="padding:8px;border:1px solid #ddd;"><a href="mailto:${email}">${email.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</a></td></tr>
-                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Subject</td><td style="padding:8px;border:1px solid #ddd;">${(subject || 'N/A').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</td></tr>
-                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Message</td><td style="padding:8px;border:1px solid #ddd;">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</td></tr>
-                </table>
-                <p style="color:#999;font-size:12px;margin-top:20px;">Sent from rhythmsofindia-wus2.azurewebsites.net contact form</p>
-            `
-        });
+        const emailMessage = {
+            senderAddress: process.env.ACS_SENDER_EMAIL,
+            content: {
+                subject: subject ? `Website Contact: ${esc(subject)}` : `Website Contact from ${esc(name)}`,
+                html: `
+                    <h2>New Contact Form Message</h2>
+                    <table style="border-collapse:collapse;width:100%;max-width:600px;">
+                        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Name</td><td style="padding:8px;border:1px solid #ddd;">${esc(name)}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Email</td><td style="padding:8px;border:1px solid #ddd;"><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Subject</td><td style="padding:8px;border:1px solid #ddd;">${esc(subject || 'N/A')}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Message</td><td style="padding:8px;border:1px solid #ddd;">${esc(message).replace(/\n/g, '<br>')}</td></tr>
+                    </table>
+                    <p style="color:#999;font-size:12px;margin-top:20px;">Sent from rhythmsofindia-wus2.azurewebsites.net contact form</p>
+                `
+            },
+            recipients: {
+                to: [{ address: toEmail, displayName: 'Rhythms of India' }]
+            },
+            replyTo: [{ address: email, displayName: name }]
+        };
+
+        const poller = await client.beginSend(emailMessage);
+        const result = await poller.pollUntilDone();
+        console.log('Email sent, status:', result.status);
 
         res.json({ success: true, message: 'Message sent successfully!' });
     } catch (err) {
