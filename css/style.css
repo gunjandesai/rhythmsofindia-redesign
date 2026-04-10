@@ -218,6 +218,36 @@ ul{list-style:none}
 .news-source{color:var(--primary);font-size:.9rem;font-weight:500}
 .news-source i{margin-right:6px}
 
+/* Events Timeline */
+.events-section{padding:80px 0;background:var(--white)}
+.events-timeline{max-width:900px;margin:0 auto;position:relative;padding-left:40px}
+.events-timeline::before{content:'';position:absolute;left:18px;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--primary),var(--secondary));border-radius:2px}
+.events-year-group{margin-bottom:50px}
+.events-year-label{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--primary);margin-bottom:25px;position:relative}
+.events-year-label::before{content:'';position:absolute;left:-30px;top:50%;transform:translateY(-50%);width:14px;height:14px;background:var(--primary);border:3px solid var(--white);box-shadow:0 0 0 3px var(--primary);border-radius:50%}
+.event-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;transition:var(--transition);display:flex;margin-bottom:20px;position:relative}
+.event-card::before{content:'';position:absolute;left:-30px;top:28px;width:10px;height:10px;background:var(--secondary);border-radius:50%}
+.event-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.event-date-badge{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:var(--white);min-width:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 15px;text-align:center}
+.event-day{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;line-height:1}
+.event-month{font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin-top:4px;opacity:.9}
+.event-card-body{padding:25px 30px;flex:1}
+.event-location{color:var(--primary);font-size:.85rem;font-weight:500;margin-bottom:8px}
+.event-location i{margin-right:5px}
+.event-card-body h3{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--dark);margin-bottom:10px;line-height:1.3}
+.event-card-body p{color:var(--text-light);margin-bottom:8px;line-height:1.7;font-size:.95rem}
+.event-source{color:var(--primary);font-size:.9rem;font-weight:500}
+.event-source i{margin-right:6px}
+@media(max-width:768px){
+.events-timeline{padding-left:30px}
+.events-timeline::before{left:12px}
+.events-year-label::before{left:-24px;width:12px;height:12px}
+.event-card::before{left:-24px;width:8px;height:8px}
+.event-card{flex-direction:column}
+.event-date-badge{flex-direction:row;gap:8px;padding:12px 20px;min-width:unset}
+.event-card-body{padding:20px}
+}
+
 /* Registration */
 .registration-section{padding:120px 0;background:var(--cream);text-align:center}
 .registration-content{max-width:600px;margin:0 auto}
