@@ -43,7 +43,7 @@ app.post('/api/contact', async (req, res) => {
         const emailMessage = {
             senderAddress: process.env.ACS_SENDER_EMAIL,
             content: {
-                subject: subject ? `Website Contact: ${esc(subject)}` : `Website Contact from ${esc(name)}`,
+                subject: subject ? `Rhythms Of India Web Site Contact: ${esc(subject)}` : `Rhythms Of India Web Site Contact from ${esc(name)}`,
                 html: `
                     <h2>New Contact Form Message</h2>
                     <table style="border-collapse:collapse;width:100%;max-width:600px;">
