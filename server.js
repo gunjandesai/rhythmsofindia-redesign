@@ -56,7 +56,10 @@ app.post('/api/contact', async (req, res) => {
                 `
             },
             recipients: {
-                to: [{ address: toEmail, displayName: 'Rhythms of India' }]
+                to: [
+                    { address: toEmail, displayName: 'Rhythms of India' },
+                    { address: 'avu000@yahoo.com', displayName: 'Rhythms of India' }
+                ]
             },
             replyTo: [{ address: email, displayName: name }]
         };
