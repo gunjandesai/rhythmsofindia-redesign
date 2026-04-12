@@ -101,10 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!n || !em || !msg) { alert('Please fill in all required fields.'); return; }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { alert('Please enter a valid email.'); return; }
 
-            // Validate Google reCAPTCHA
-            const recaptchaResponse = grecaptcha.getResponse();
-            if (!recaptchaResponse) {
-                alert('Please complete the reCAPTCHA verification.');
+            // Get reCAPTCHA v3 token
+            let recaptchaToken;
+            try {
+                recaptchaToken = await grecaptcha.execute('6Lf5T7EsAAAAAJG22pc5RVxI1lGYbHph9v7JY_tu', { action: 'contact' });
+            } catch (err) {
+                alert('reCAPTCHA verification failed. Please refresh and try again.');
                 return;
             }
 
@@ -117,13 +119,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resp = await fetch('/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: n, email: em, subject: subj, message: msg, recaptchaToken: recaptchaResponse })
+                    body: JSON.stringify({ name: n, email: em, subject: subj, message: msg, recaptchaToken: recaptchaToken })
                 });
                 const data = await resp.json();
                 if (data.success) {
                     alert('Thank you! Your message has been sent successfully.');
                     form.reset();
-                    grecaptcha.reset();
                 } else {
                     alert(data.message || 'Failed to send message. Please try again.');
                 }

@@ -27,7 +27,7 @@ app.post('/api/contact', async (req, res) => {
             body: `secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET_KEY)}&response=${encodeURIComponent(recaptchaToken)}`
         });
         const recaptchaData = await recaptchaResp.json();
-        if (!recaptchaData.success) {
+        if (!recaptchaData.success || recaptchaData.score < 0.5) {
             return res.status(400).json({ success: false, message: 'reCAPTCHA verification failed. Please try again.' });
         }
     } catch (err) {
