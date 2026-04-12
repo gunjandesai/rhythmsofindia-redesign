@@ -87,18 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLB(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
 
-    // Contact form CAPTCHA
-    function generateCaptcha() {
-        const a = Math.floor(Math.random() * 10) + 1;
-        const b = Math.floor(Math.random() * 10) + 1;
-        const qEl = document.getElementById('captchaQuestion');
-        const expEl = document.getElementById('captchaExpected');
-        if (qEl && expEl) {
-            qEl.textContent = 'What is ' + a + ' + ' + b + '?';
-            expEl.value = String(a + b);
-        }
-    }
-    generateCaptcha();
+
 
     // Contact form
     const form = document.getElementById('contactForm');
@@ -112,13 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!n || !em || !msg) { alert('Please fill in all required fields.'); return; }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { alert('Please enter a valid email.'); return; }
 
-            // Validate CAPTCHA
-            const captchaAnswer = document.getElementById('captchaAnswer').value.trim();
-            const captchaExpected = document.getElementById('captchaExpected').value;
-            if (captchaAnswer !== captchaExpected) {
-                alert('Incorrect answer. Please solve the math question.');
-                generateCaptcha();
-                document.getElementById('captchaAnswer').value = '';
+            // Validate Google reCAPTCHA
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (!recaptchaResponse) {
+                alert('Please complete the reCAPTCHA verification.');
                 return;
             }
 
@@ -131,13 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resp = await fetch('/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: n, email: em, subject: subj, message: msg })
+                    body: JSON.stringify({ name: n, email: em, subject: subj, message: msg, recaptchaToken: recaptchaResponse })
                 });
                 const data = await resp.json();
                 if (data.success) {
                     alert('Thank you! Your message has been sent successfully.');
                     form.reset();
-                    generateCaptcha();
+                    grecaptcha.reset();
                 } else {
                     alert(data.message || 'Failed to send message. Please try again.');
                 }

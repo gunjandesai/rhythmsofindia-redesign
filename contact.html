@@ -47,6 +47,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <div id="preloader"><div class="loader"><div class="loader-ring"></div><span class="loader-text">Rhythms of India</span></div></div>
@@ -86,7 +87,7 @@
                         <div class="form-group"><label for="contactEmail">Your Email (required)</label><input type="email" id="contactEmail" name="email" required autocomplete="email"></div>
                         <div class="form-group"><label for="contactSubject">Subject</label><input type="text" id="contactSubject" name="subject" autocomplete="off"></div>
                         <div class="form-group"><label for="contactMessage">Your Message</label><textarea id="contactMessage" name="message" rows="6" required></textarea></div>
-                        <div class="form-group captcha-group"><label for="captchaAnswer">Verify you are human: <strong id="captchaQuestion"></strong></label><input type="text" id="captchaAnswer" name="captcha" required autocomplete="off" placeholder="Your answer"><input type="hidden" id="captchaExpected" value=""></div>
+                        <div class="form-group captcha-group"><div class="g-recaptcha" data-sitekey="6Lf5T7EsAAAAAJG22pc5RVxI1lGYbHph9v7JY_tu"></div></div>
                         <button type="submit" class="btn btn-primary">Send</button>
                     </form>
                 </div>

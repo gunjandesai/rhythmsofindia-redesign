@@ -14,7 +14,26 @@ app.use(express.json());
 
 // Contact form email endpoint
 app.post('/api/contact', async (req, res) => {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message, recaptchaToken } = req.body;
+
+    // Verify Google reCAPTCHA
+    if (!recaptchaToken) {
+        return res.status(400).json({ success: false, message: 'reCAPTCHA verification is required.' });
+    }
+    try {
+        const recaptchaResp = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `secret=${encodeURIComponent(process.env.RECAPTCHA_SECRET_KEY)}&response=${encodeURIComponent(recaptchaToken)}`
+        });
+        const recaptchaData = await recaptchaResp.json();
+        if (!recaptchaData.success) {
+            return res.status(400).json({ success: false, message: 'reCAPTCHA verification failed. Please try again.' });
+        }
+    } catch (err) {
+        console.error('reCAPTCHA verification error:', err.message);
+        return res.status(500).json({ success: false, message: 'Could not verify reCAPTCHA. Please try again.' });
+    }
 
     // Validate required fields
     if (!name || !email || !message) {
