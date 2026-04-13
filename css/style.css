@@ -109,6 +109,8 @@ ul{list-style:none}
 .date-day{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--primary);line-height:1;display:block}
 .date-month{font-size:.7rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
 .schedule-card-body h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--dark)}
+.schedule-card-past{opacity:.55}
+.schedule-card-past:hover{opacity:.85}
 
 /* About Intro */
 .about-intro{padding:60px 0;background:var(--white)}
