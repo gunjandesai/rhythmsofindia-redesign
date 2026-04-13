@@ -71,7 +71,7 @@ app.post('/api/contact', async (req, res) => {
                         <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Subject</td><td style="padding:8px;border:1px solid #ddd;">${esc(subject || 'N/A')}</td></tr>
                         <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;">Message</td><td style="padding:8px;border:1px solid #ddd;">${esc(message).replace(/\n/g, '<br>')}</td></tr>
                     </table>
-                    <p style="color:#999;font-size:12px;margin-top:20px;">Sent from rhythmsofindia-wus2.azurewebsites.net contact form</p>
+                    <p style="color:#999;font-size:12px;margin-top:20px;">Sent from rhythmsofindia.com contact form</p>
                 `
             },
             recipients: {
@@ -109,7 +109,22 @@ app.post('/api/contact', async (req, res) => {
 
 // Serve static files from root
 app.use(express.static(path.join(__dirname), {
-    extensions: ['html', 'htm']
+    extensions: ['html', 'htm'],
+    maxAge: '7d',
+    setHeaders: (res, filePath) => {
+        // SEO & security headers
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+        res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+        // Longer cache for assets
+        if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+            res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+        } else if (/\.(jpg|jpeg|png|gif|svg|webp|ico)$/.test(filePath)) {
+            res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+        } else if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'public, max-age=3600');
+        }
+    }
 }));
 
 // SPA fallback for clean URLs - serve index.html for directory requests
