@@ -235,6 +235,10 @@ ul{list-style:none}
 .events-year-group{margin-bottom:50px}
 .events-year-label{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--primary);margin-bottom:25px;position:relative}
 .events-year-label::before{content:'';position:absolute;left:-30px;top:50%;transform:translateY(-50%);width:14px;height:14px;background:var(--primary);border:3px solid var(--white);box-shadow:0 0 0 3px var(--primary);border-radius:50%}
+.events-sublabel{font-family:'Poppins',sans-serif;font-size:.95rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--primary);margin:20px 0 15px;display:flex;align-items:center;gap:8px}
+.events-sublabel i{font-size:.85rem}
+.event-card-upcoming{border-left:3px solid var(--secondary)}
+.event-card-upcoming .event-date-badge{background:linear-gradient(135deg,var(--secondary),#e6960a)}
 .event-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;transition:var(--transition);display:flex;margin-bottom:20px;position:relative}
 .event-card::before{content:'';position:absolute;left:-30px;top:28px;width:10px;height:10px;background:var(--secondary);border-radius:50%}
 .event-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
