@@ -248,6 +248,9 @@ ul{list-style:none}
 .event-card-body p{color:var(--text-light);margin-bottom:8px;line-height:1.7;font-size:.95rem}
 .event-source{color:var(--primary);font-size:.9rem;font-weight:500}
 .event-source i{margin-right:6px}
+.event-photos{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.event-photos img{width:120px;height:80px;object-fit:cover;border-radius:var(--radius);cursor:pointer;transition:transform .3s ease,box-shadow .3s ease}
+.event-photos img:hover{transform:scale(1.05);box-shadow:var(--shadow)}
 @media(max-width:768px){
 .events-timeline{padding-left:30px}
 .events-timeline::before{left:12px}
