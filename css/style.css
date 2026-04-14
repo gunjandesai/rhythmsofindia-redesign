@@ -264,7 +264,8 @@ ul{list-style:none}
 .event-card::before{left:-24px;width:8px;height:8px}
 .event-card{flex-direction:column}
 .event-date-badge{flex-direction:row;gap:8px;padding:12px 20px;min-width:unset}
-.event-card-body{padding:20px}
+.event-card-body{padding:20px;position:relative;overflow:hidden}
+.event-card-body::after{right:10px;bottom:10px;width:40px;height:40px}
 }
 
 /* Registration */
