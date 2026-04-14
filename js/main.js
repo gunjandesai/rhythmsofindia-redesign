@@ -154,4 +154,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Auto-classify events as Upcoming or Past based on date
+    document.querySelectorAll('.events-year-group[data-year]').forEach(group => {
+        const cards = Array.from(group.querySelectorAll('.event-card[data-date]'));
+        if (!cards.length) return;
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const upcoming = cards.filter(c => new Date(c.dataset.date + 'T23:59:59') >= today);
+        const past = cards.filter(c => new Date(c.dataset.date + 'T23:59:59') < today);
+        upcoming.sort((a, b) => new Date(a.dataset.date) - new Date(b.dataset.date));
+        past.sort((a, b) => new Date(b.dataset.date) - new Date(a.dataset.date));
+        cards.forEach(c => c.remove());
+        group.querySelectorAll('.events-sublabel').forEach(l => l.remove());
+        const label = group.querySelector('.events-year-label');
+        if (upcoming.length) {
+            const h = document.createElement('h4');
+            h.className = 'events-sublabel';
+            h.innerHTML = '<i class="fas fa-calendar-alt"></i> Upcoming';
+            label.after(h);
+            upcoming.forEach(c => { c.classList.add('event-card-upcoming'); h.after(c); });
+            // insert past after last upcoming
+            if (past.length) {
+                const hp = document.createElement('h4');
+                hp.className = 'events-sublabel';
+                hp.innerHTML = '<i class="fas fa-check-circle"></i> Past';
+                upcoming[upcoming.length - 1].after(hp);
+                past.forEach(c => { c.classList.remove('event-card-upcoming'); hp.after(c); });
+            }
+        } else if (past.length) {
+            const hp = document.createElement('h4');
+            hp.className = 'events-sublabel';
+            hp.innerHTML = '<i class="fas fa-check-circle"></i> Past';
+            label.after(hp);
+            past.forEach(c => { c.classList.remove('event-card-upcoming'); hp.after(c); });
+        }
+    });
 });
