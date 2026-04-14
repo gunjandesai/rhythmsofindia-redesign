@@ -167,26 +167,21 @@ document.addEventListener('DOMContentLoaded', () => {
         cards.forEach(c => c.remove());
         group.querySelectorAll('.events-sublabel').forEach(l => l.remove());
         const label = group.querySelector('.events-year-label');
+        const frag = document.createDocumentFragment();
         if (upcoming.length) {
             const h = document.createElement('h4');
             h.className = 'events-sublabel';
             h.innerHTML = '<i class="fas fa-calendar-alt"></i> Upcoming';
-            label.after(h);
-            upcoming.forEach(c => { c.classList.add('event-card-upcoming'); h.after(c); });
-            // insert past after last upcoming
-            if (past.length) {
-                const hp = document.createElement('h4');
-                hp.className = 'events-sublabel';
-                hp.innerHTML = '<i class="fas fa-check-circle"></i> Past';
-                upcoming[upcoming.length - 1].after(hp);
-                past.forEach(c => { c.classList.remove('event-card-upcoming'); hp.after(c); });
-            }
-        } else if (past.length) {
+            frag.appendChild(h);
+            upcoming.forEach(c => { c.classList.add('event-card-upcoming'); frag.appendChild(c); });
+        }
+        if (past.length) {
             const hp = document.createElement('h4');
             hp.className = 'events-sublabel';
             hp.innerHTML = '<i class="fas fa-check-circle"></i> Past';
-            label.after(hp);
-            past.forEach(c => { c.classList.remove('event-card-upcoming'); hp.after(c); });
+            frag.appendChild(hp);
+            past.forEach(c => { c.classList.remove('event-card-upcoming'); frag.appendChild(c); });
         }
+        label.after(frag);
     });
 });
