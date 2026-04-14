@@ -181,4 +181,9 @@ document.addEventListener('DOMContentLoaded', () => {
             past.forEach(c => { c.classList.remove('event-card-upcoming'); group.appendChild(c); });
         }
     });
+
+    // Set event card logo backgrounds from data-logo attribute
+    document.querySelectorAll('.event-card[data-logo]').forEach(card => {
+        card.querySelector('.event-card-body').style.setProperty('--event-logo', 'url(' + card.dataset.logo + ')');
+    });
 });
