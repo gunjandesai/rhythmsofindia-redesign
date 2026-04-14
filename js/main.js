@@ -166,22 +166,19 @@ document.addEventListener('DOMContentLoaded', () => {
         past.sort((a, b) => new Date(b.dataset.date) - new Date(a.dataset.date));
         cards.forEach(c => c.remove());
         group.querySelectorAll('.events-sublabel').forEach(l => l.remove());
-        const label = group.querySelector('.events-year-label');
-        const frag = document.createDocumentFragment();
         if (upcoming.length) {
             const h = document.createElement('h4');
             h.className = 'events-sublabel';
             h.innerHTML = '<i class="fas fa-calendar-alt"></i> Upcoming';
-            frag.appendChild(h);
-            upcoming.forEach(c => { c.classList.add('event-card-upcoming'); frag.appendChild(c); });
+            group.appendChild(h);
+            upcoming.forEach(c => { c.classList.add('event-card-upcoming'); group.appendChild(c); });
         }
         if (past.length) {
             const hp = document.createElement('h4');
             hp.className = 'events-sublabel';
             hp.innerHTML = '<i class="fas fa-check-circle"></i> Past';
-            frag.appendChild(hp);
-            past.forEach(c => { c.classList.remove('event-card-upcoming'); frag.appendChild(c); });
+            group.appendChild(hp);
+            past.forEach(c => { c.classList.remove('event-card-upcoming'); group.appendChild(c); });
         }
-        label.after(frag);
     });
 });
