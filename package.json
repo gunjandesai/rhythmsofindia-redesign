@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Rhythms of India website",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build:events": "node scripts/build-events-html.js",
+    "build:timetable": "node scripts/build-timetable-html.js",
+    "build": "npm run build:events && npm run build:timetable"
   },
   "dependencies": {
     "@azure/communication-email": "^1.1.0",

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Rhythms of India</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background: #f5f5f5; color: #333; min-height: 100vh; }
+
+        /* Login */
+        .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .login-card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 400px; width: 100%; text-align: center; }
+        .login-card h1 { font-size: 1.5rem; margin-bottom: 8px; color: #c41e3a; }
+        .login-card p { font-size: 0.9rem; color: #666; margin-bottom: 24px; }
+        .login-card input { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
+        .login-card input:focus { border-color: #c41e3a; }
+        .login-card button { width: 100%; padding: 12px; background: #c41e3a; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-family: inherit; font-weight: 600; cursor: pointer; margin-top: 16px; transition: background 0.2s; }
+        .login-card button:hover { background: #a31830; }
+        .login-error { color: #c41e3a; font-size: 0.85rem; margin-top: 12px; display: none; }
+
+        /* Dashboard */
+        .dashboard { display: none; }
+        .top-bar { background: #c41e3a; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .top-bar h1 { font-size: 1.2rem; font-weight: 600; }
+        .top-bar .btn-logout { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.85rem; }
+        .top-bar .btn-logout:hover { background: rgba(255,255,255,0.3); }
+
+        /* Tabs */
+        .tabs { display: flex; background: #fff; border-bottom: 2px solid #e0e0e0; }
+        .tab-btn { flex: 1; padding: 14px; border: none; background: none; font-family: inherit; font-size: 0.95rem; font-weight: 500; cursor: pointer; color: #666; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .tab-btn.active { color: #c41e3a; border-bottom-color: #c41e3a; }
+        .tab-btn:hover { background: #fafafa; }
+        .tab-content { display: none; padding: 24px; max-width: 900px; margin: 0 auto; }
+        .tab-content.active { display: block; }
+
+        /* Forms */
+        .form-card { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .form-card h2 { font-size: 1.1rem; margin-bottom: 16px; color: #c41e3a; }
+        .form-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 200px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 500; color: #555; margin-bottom: 4px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #c41e3a; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .btn-primary { background: #c41e3a; color: #fff; border: none; padding: 10px 24px; border-radius: 6px; font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-primary:hover { background: #a31830; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-danger { background: #dc3545; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+        .btn-danger:hover { background: #c82333; }
+
+        /* Bulk add helper */
+        .bulk-info { font-size: 0.8rem; color: #888; margin-bottom: 12px; }
+        .repeat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+        .repeat-row label { font-size: 0.85rem; font-weight: 500; color: #555; }
+        .repeat-row input, .repeat-row select { padding: 8px 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.85rem; font-family: inherit; }
+        .btn-secondary { background: #6c757d; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-size: 0.85rem; cursor: pointer; }
+        .btn-secondary:hover { background: #5a6268; }
+
+        /* Tables */
+        .data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+        .data-table th { background: #f8f8f8; padding: 12px 14px; text-align: left; font-size: 0.8rem; font-weight: 600; color: #555; text-transform: uppercase; border-bottom: 2px solid #e0e0e0; }
+        .data-table td { padding: 10px 14px; font-size: 0.85rem; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+        .data-table tr:hover { background: #fafafa; }
+        .data-table .desc-cell { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .badge-upcoming { background: #28a745; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+        .badge-past { background: #999; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #333; color: #fff; padding: 14px 20px; border-radius: 8px; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; opacity: 0; transform: translateY(20px); transition: all 0.3s; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { background: #dc3545; }
+        .toast.success { background: #28a745; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .form-row { flex-direction: column; }
+            .form-group { min-width: 100%; }
+            .top-bar { flex-direction: column; gap: 8px; text-align: center; }
+            .data-table { font-size: 0.75rem; }
+            .data-table th, .data-table td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-wrapper" id="loginScreen">
+        <div class="login-card">
+            <h1>Rhythms of India</h1>
+            <p>Admin Panel — Enter your password to continue</p>
+            <form id="loginForm">
+                <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
+                <button type="submit">Sign In</button>
+                <p class="login-error" id="loginError"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <div class="top-bar">
+            <h1><i class="fas fa-cog"></i> Rhythms of India — Admin</h1>
+            <button class="btn-logout" id="btnLogout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="events"><i class="fas fa-calendar-alt"></i> Events</button>
+            <button class="tab-btn" data-tab="timetable"><i class="fas fa-clock"></i> Timetable</button>
+        </div>
+
+        <!-- Events Tab -->
+        <div class="tab-content active" id="tab-events">
+            <div class="form-card">
+                <h2><i class="fas fa-plus-circle"></i> Add New Event</h2>
+                <form id="eventForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="eventDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="eventLocation" placeholder="e.g. Seattle, WA" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Event Title</label>
+                            <input type="text" id="eventTitle" placeholder="e.g. Holi Celebration" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="eventDescription" placeholder="Describe the event..." required></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" id="btnAddEvent"><i class="fas fa-plus"></i> Add Event</button>
+                </form>
+            </div>
+
+            <h2 style="margin-bottom:12px;font-size:1rem;">All Events</h2>
+            <table class="data-table" id="eventsTable">
+                <thead>
+                    <tr><th>Date</th><th>Title</th><th>Location</th><th>Description</th><th></th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Timetable Tab -->
+        <div class="tab-content" id="tab-timetable">
+            <div class="form-card">
+                <h2><i class="fas fa-plus-circle"></i> Add Class Date(s)</h2>
+                <p class="bulk-info">Add a single class or use "Repeat Weekly" to bulk-add multiple weeks at once.</p>
+                <form id="timetableForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="classDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select id="className" required>
+                                <option value="Beginner Bhangra">Beginner Bhangra</option>
+                                <option value="Advance Bhangra">Advance Bhangra</option>
+                                <option value="Kids Bhangra">Kids Bhangra</option>
+                                <option value="Bollywood Dance">Bollywood Dance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="classLocation" value="Redmond" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Instructors</label>
+                            <input type="text" id="classInstructors" value="Avani Desai, Shub C. Kaur" required>
+                        </div>
+                    </div>
+                    <div class="repeat-row">
+                        <label><input type="checkbox" id="repeatWeekly"> Repeat weekly for</label>
+                        <input type="number" id="repeatWeeks" value="4" min="2" max="52" style="width:60px;">
+                        <label>weeks</label>
+                    </div>
+                    <button type="submit" class="btn-primary" id="btnAddClass"><i class="fas fa-plus"></i> Add Class(es)</button>
+                </form>
+            </div>
+
+            <h2 style="margin-bottom:12px;font-size:1rem;">All Classes</h2>
+            <table class="data-table" id="timetableTable">
+                <thead>
+                    <tr><th>Date</th><th>Class</th><th>Location</th><th>Instructors</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+    (function() {
+        const API = '/api/admin';
+        let token = sessionStorage.getItem('adminToken') || '';
+
+        // ── Helpers ──
+        function headers() {
+            return { 'Content-Type': 'application/json', 'X-Admin-Token': token };
+        }
+
+        async function api(method, path, body) {
+            const opts = { method, headers: headers() };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(API + path, opts);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Request failed');
+            return data;
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show ' + type;
+            setTimeout(() => t.className = 'toast', 3000);
+        }
+
+        function formatDateDisplay(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            return `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()} (${days[d.getUTCDay()]})`;
+        }
+
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function isUpcoming(dateStr) {
+            return dateStr >= new Date().toISOString().slice(0, 10);
+        }
+
+        // ── Auth ──
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errEl = document.getElementById('loginError');
+            errEl.style.display = 'none';
+            try {
+                const data = await fetch(API + '/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: document.getElementById('loginPassword').value })
+                }).then(r => r.json());
+                if (!data.success) throw new Error(data.message);
+                token = data.token;
+                sessionStorage.setItem('adminToken', token);
+                showDashboard();
+            } catch (err) {
+                errEl.textContent = err.message;
+                errEl.style.display = 'block';
+            }
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            try { await api('POST', '/logout'); } catch {}
+            token = '';
+            sessionStorage.removeItem('adminToken');
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        });
+
+        async function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            await Promise.all([loadEvents(), loadTimetable()]);
+        }
+
+        // Auto-login if token exists
+        if (token) {
+            api('GET', '/events').then(() => showDashboard()).catch(() => {
+                token = '';
+                sessionStorage.removeItem('adminToken');
+            });
+        }
+
+        // ── Tabs ──
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ── Events ──
+        async function loadEvents() {
+            try {
+                const data = await api('GET', '/events');
+                const tbody = document.querySelector('#eventsTable tbody');
+                tbody.innerHTML = data.events.map((ev, i) => `
+                    <tr>
+                        <td>${formatDateDisplay(ev.date)}</td>
+                        <td><strong>${escapeHtml(ev.title)}</strong></td>
+                        <td>${escapeHtml(ev.location)}</td>
+                        <td class="desc-cell" title="${escapeHtml(ev.description)}">${escapeHtml(ev.description)}</td>
+                        <td>
+                            <span class="${isUpcoming(ev.date) ? 'badge-upcoming' : 'badge-past'}">${isUpcoming(ev.date) ? 'Upcoming' : 'Past'}</span>
+                            <button class="btn-danger" style="margin-left:8px" onclick="deleteEvent(${i})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        window.deleteEvent = async function(idx) {
+            if (!confirm('Delete this event? This will also update the public events page.')) return;
+            try {
+                await api('DELETE', '/events/' + idx);
+                showToast('Event deleted!');
+                loadEvents();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        };
+
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnAddEvent');
+            btn.disabled = true;
+            try {
+                await api('POST', '/events', {
+                    date: document.getElementById('eventDate').value,
+                    location: document.getElementById('eventLocation').value,
+                    title: document.getElementById('eventTitle').value,
+                    description: document.getElementById('eventDescription').value
+                });
+                showToast('Event added!');
+                document.getElementById('eventForm').reset();
+                loadEvents();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+            btn.disabled = false;
+        });
+
+        // ── Timetable ──
+        async function loadTimetable() {
+            try {
+                const data = await api('GET', '/timetable');
+                const tbody = document.querySelector('#timetableTable tbody');
+                tbody.innerHTML = data.classes.map((cls, i) => `
+                    <tr>
+                        <td>${formatDateDisplay(cls.date)}</td>
+                        <td>${escapeHtml(cls.class)}</td>
+                        <td>${escapeHtml(cls.location)}</td>
+                        <td>${escapeHtml(cls.instructors)}</td>
+                        <td><span class="${isUpcoming(cls.date) ? 'badge-upcoming' : 'badge-past'}">${isUpcoming(cls.date) ? 'Upcoming' : 'Past'}</span></td>
+                        <td><button class="btn-danger" onclick="deleteClass(${i})"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        window.deleteClass = async function(idx) {
+            if (!confirm('Delete this class? This will also update the public timetable page.')) return;
+            try {
+                await api('DELETE', '/timetable/' + idx);
+                showToast('Class deleted!');
+                loadTimetable();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        };
+
+        document.getElementById('timetableForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnAddClass');
+            btn.disabled = true;
+
+            const baseDate = document.getElementById('classDate').value;
+            const className = document.getElementById('className').value;
+            const location = document.getElementById('classLocation').value;
+            const instructors = document.getElementById('classInstructors').value;
+            const repeat = document.getElementById('repeatWeekly').checked;
+            const weeks = parseInt(document.getElementById('repeatWeeks').value) || 4;
+
+            const items = [];
+            if (repeat) {
+                for (let w = 0; w < weeks; w++) {
+                    const d = new Date(baseDate + 'T00:00:00');
+                    d.setUTCDate(d.getUTCDate() + w * 7);
+                    const ds = d.toISOString().slice(0, 10);
+                    items.push({ date: ds, class: className, location, instructors });
+                }
+            } else {
+                items.push({ date: baseDate, class: className, location, instructors });
+            }
+
+            try {
+                await api('POST', '/timetable', items);
+                showToast(`${items.length} class(es) added!`);
+                document.getElementById('timetableForm').reset();
+                document.getElementById('classLocation').value = 'Redmond';
+                document.getElementById('classInstructors').value = 'Avani Desai, Shub C. Kaur';
+                loadTimetable();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+            btn.disabled = false;
+        });
+    })();
+    </script>
+</body>
+</html>
