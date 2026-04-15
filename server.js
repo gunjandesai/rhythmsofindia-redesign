@@ -87,6 +87,23 @@ app.post('/api/admin/events', requireAuth, (req, res) => {
   res.json({ success: true, message: 'Event added and page rebuilt.' });
 });
 
+app.put('/api/admin/events/:index', requireAuth, (req, res) => {
+  const idx = parseInt(req.params.index, 10);
+  const events = JSON.parse(fs.readFileSync(EVENTS_JSON, 'utf-8'));
+  if (isNaN(idx) || idx < 0 || idx >= events.length) {
+    return res.status(400).json({ success: false, message: 'Invalid index.' });
+  }
+  const { date, location, title, description } = req.body;
+  if (!date || !location || !title || !description) {
+    return res.status(400).json({ success: false, message: 'All fields are required.' });
+  }
+  events[idx] = { ...events[idx], date, location, title, description };
+  events.sort((a, b) => b.date.localeCompare(a.date));
+  fs.writeFileSync(EVENTS_JSON, JSON.stringify(events, null, 2), 'utf-8');
+  rebuildEvents();
+  res.json({ success: true, message: 'Event updated and page rebuilt.' });
+});
+
 app.delete('/api/admin/events/:index', requireAuth, (req, res) => {
   const idx = parseInt(req.params.index, 10);
   const events = JSON.parse(fs.readFileSync(EVENTS_JSON, 'utf-8'));
@@ -124,6 +141,23 @@ app.post('/api/admin/timetable', requireAuth, (req, res) => {
   fs.writeFileSync(TIMETABLE_JSON, JSON.stringify(classes, null, 2), 'utf-8');
   rebuildTimetable();
   res.json({ success: true, message: `${items.length} class(es) added and page rebuilt.` });
+});
+
+app.put('/api/admin/timetable/:index', requireAuth, (req, res) => {
+  const idx = parseInt(req.params.index, 10);
+  const classes = JSON.parse(fs.readFileSync(TIMETABLE_JSON, 'utf-8'));
+  if (isNaN(idx) || idx < 0 || idx >= classes.length) {
+    return res.status(400).json({ success: false, message: 'Invalid index.' });
+  }
+  const { date, class: className, location, instructors } = req.body;
+  if (!date || !className || !location || !instructors) {
+    return res.status(400).json({ success: false, message: 'All fields are required.' });
+  }
+  classes[idx] = { date, class: className, location, instructors };
+  classes.sort((a, b) => b.date.localeCompare(a.date));
+  fs.writeFileSync(TIMETABLE_JSON, JSON.stringify(classes, null, 2), 'utf-8');
+  rebuildTimetable();
+  res.json({ success: true, message: 'Class updated and page rebuilt.' });
 });
 
 app.delete('/api/admin/timetable/:index', requireAuth, (req, res) => {
