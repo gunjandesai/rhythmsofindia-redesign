@@ -65,7 +65,7 @@ ul{list-style:none}
 .nav-toggle.active .hamburger::after{transform:rotate(-45deg);top:0}
 
 /* Hero */
-.hero-section{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;background:url('https://rhythmsofindia.com/wp-content/uploads/2023/05/6D8A1739-1-1024x886.jpg') center/cover no-repeat;text-align:center;overflow:hidden}
+.hero-section{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;background:url('/wp-content/uploads/2026/04/WhatsApp%20Image%202026-04-14%20at%2010.58.12%20PM.jpeg') center/cover no-repeat;text-align:center;overflow:hidden}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,26,46,.85),rgba(201,64,44,.55),rgba(26,26,46,.85))}
 .hero-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .hero-particles .particle{position:absolute;width:4px;height:4px;background:rgba(255,255,255,.3);border-radius:50%;animation:float-particle linear infinite}
