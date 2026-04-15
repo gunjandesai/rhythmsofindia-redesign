@@ -186,4 +186,31 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.event-card[data-logo]').forEach(card => {
         card.querySelector('.event-card-body').style.setProperty('--event-logo', 'url(' + card.dataset.logo + ')');
     });
+
+    // Auto-classify timetable rows as Upcoming or Past based on date
+    const upcomingTbody = document.querySelector('.timetable-section .timetable:not(.timetable-past) tbody');
+    const pastTbody = document.querySelector('.timetable-section .timetable-past tbody');
+    if (upcomingTbody && pastTbody) {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const allRows = Array.from(upcomingTbody.querySelectorAll('tr[data-date]'))
+            .concat(Array.from(pastTbody.querySelectorAll('tr[data-date]')));
+        if (allRows.length) {
+            const upcoming = allRows.filter(r => new Date(r.dataset.date + 'T23:59:59') >= today);
+            const past = allRows.filter(r => new Date(r.dataset.date + 'T23:59:59') < today);
+            upcoming.sort((a, b) => new Date(a.dataset.date) - new Date(b.dataset.date));
+            past.sort((a, b) => new Date(b.dataset.date) - new Date(a.dataset.date));
+            upcomingTbody.innerHTML = '';
+            pastTbody.innerHTML = '';
+            if (upcoming.length) {
+                upcoming.forEach(r => upcomingTbody.appendChild(r));
+            } else {
+                upcomingTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No upcoming classes scheduled yet.</td></tr>';
+            }
+            if (past.length) {
+                past.forEach(r => pastTbody.appendChild(r));
+            } else {
+                pastTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No past classes.</td></tr>';
+            }
+        }
+    }
 });

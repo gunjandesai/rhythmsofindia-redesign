@@ -34,7 +34,7 @@ function formatDate(dateStr) {
 }
 
 function buildRow(cls) {
-  return `                        <tr><td>${formatDate(cls.date)}</td><td>${escapeHtml(cls.class)}</td><td>${escapeHtml(cls.location)}</td><td>${escapeHtml(cls.instructors)}</td></tr>`;
+  return `                        <tr data-date="${cls.date}"><td>${formatDate(cls.date)}</td><td>${escapeHtml(cls.class)}</td><td>${escapeHtml(cls.location)}</td><td>${escapeHtml(cls.instructors)}</td></tr>`;
 }
 
 function buildTimetable(classes) {
