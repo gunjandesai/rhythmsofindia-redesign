@@ -4,6 +4,17 @@ Disallow: /node_modules/
 Disallow: /deploy.zip
 Disallow: /scripts/
 Disallow: /data/
+Disallow: /admin/
+Disallow: /class/
+Disallow: /tag/
+Disallow: /category/
+Disallow: /wcs-room/
+Disallow: /comments/
+Disallow: /wp-content/plugins/
+Disallow: /*?s=
+Disallow: /*?wcs_timestamp=
+Disallow: /*?gf_confirmation=
+Disallow: */feed/
 
 # Specifically welcome Bing and Google crawlers
 User-agent: Bingbot

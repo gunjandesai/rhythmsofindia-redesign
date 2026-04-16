@@ -267,6 +267,52 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
+// ── Legacy WordPress URL handling ──────────────────────────────────────
+// 301 redirect old WordPress search URLs to homepage
+app.get('/', (req, res, next) => {
+  if (req.query.s !== undefined) {
+    return res.redirect(301, 'https://rhythmsofindia.com/');
+  }
+  next();
+});
+
+// Strip stale WordPress query params (wcs_timestamp, gf_confirmation) via 301
+app.use((req, res, next) => {
+  if (req.query.wcs_timestamp || req.query.gf_confirmation) {
+    return res.redirect(301, `https://rhythmsofindia.com${req.path}`);
+  }
+  next();
+});
+
+// 410 Gone for old WordPress feed URLs
+app.get('*/feed/', (req, res) => {
+  res.status(410).send('410 Gone');
+});
+app.get('/comments/feed', (req, res) => {
+  res.status(410).send('410 Gone');
+});
+
+// 410 Gone for old WordPress paths that no longer exist
+app.get([
+  '/class/*',
+  '/tag/*',
+  '/category/*',
+  '/wcs-room/*',
+  '/wp-content/plugins/*'
+], (req, res) => {
+  res.status(410).send('410 Gone');
+});
+
+// 301 redirect /studio/ (no index page) to /studio/instructors/
+app.get('/studio/', (req, res, next) => {
+  // Only redirect if there's no index.html at /studio/
+  const studioIndex = path.join(__dirname, 'studio', 'index.html');
+  if (!fs.existsSync(studioIndex)) {
+    return res.redirect(301, '/studio/instructors/');
+  }
+  next();
+});
+
 // Serve static files from root
 app.use(express.static(path.join(__dirname), {
     extensions: ['html', 'htm'],
