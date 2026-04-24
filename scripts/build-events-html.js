@@ -43,7 +43,7 @@ function buildEventCard(event) {
     source = `\n                            <p class="event-source"><i class="fas fa-external-link-alt"></i> Featured in <strong>${escapeHtml(event.sourceName)}</strong></p>`;
   }
 
-  return `                    <article class="event-card">
+  return `                    <article class="event-card" data-date="${event.date}">
                         <div class="event-date-badge">
                             <span class="event-day">${day}</span>
                             <span class="event-month">${month}</span>
@@ -75,7 +75,7 @@ function buildTimeline(events) {
     const cards = groups[year].map(buildEventCard).join('\n\n');
 
     return `                <!-- ${year} -->
-                <div class="events-year-group">
+                <div class="events-year-group" data-year="${year}">
                     <h3 class="events-year-label">${year}</h3>
 
 ${cards}
