@@ -27,7 +27,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Set App Service runtime to Node 22 LTS
-        run: az webapp config set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name rhythmsofindia-wus2 --nodejs-version "~22"
+        run: az webapp config set --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name rhythmsofindia-wus2 --linux-fx-version "NODE|22-lts"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
