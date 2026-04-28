@@ -284,32 +284,55 @@ app.use((req, res, next) => {
   next();
 });
 
-// 410 Gone for old WordPress feed URLs
-app.get('*/feed/', (req, res) => {
-  res.status(410).send('410 Gone');
-});
-app.get('/comments/feed', (req, res) => {
-  res.status(410).send('410 Gone');
-});
+// ── URL redirect & cleanup middleware ─────────────────────────────────
+// Uses plain string operations instead of Express route patterns for reliability
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  const p = req.path;
 
-// 410 Gone for old WordPress paths that no longer exist
-app.get([
-  '/class/*',
-  '/tag/*',
-  '/category/*',
-  '/wcs-room/*',
-  '/wp-content/plugins/*'
-], (req, res) => {
-  res.status(410).send('410 Gone');
-});
+  // 410 Gone for old WordPress feed URLs
+  if (p.endsWith('/feed/') || p === '/comments/feed') {
+    return res.status(410).send('410 Gone');
+  }
 
-// 301 redirect /studio/ (no index page) to /studio/instructors/
-app.get('/studio/', (req, res, next) => {
-  // Only redirect if there's no index.html at /studio/
-  const studioIndex = path.join(__dirname, 'studio', 'index.html');
-  if (!fs.existsSync(studioIndex)) {
+  // 301 redirect old WordPress date-based blog post URLs to homepage
+  if (/^\/\d{4}\/\d{2}\/\d{2}\//.test(p)) {
+    return res.redirect(301, 'https://rhythmsofindia.com/');
+  }
+
+  // 301 redirect old WordPress paths to relevant pages
+  if (p.startsWith('/class/') || p.startsWith('/wcs-room/')) {
+    return res.redirect(301, '/timetable.html');
+  }
+  if (p.startsWith('/tag/') || p.startsWith('/category/')) {
+    return res.redirect(301, 'https://rhythmsofindia.com/');
+  }
+  if (p.startsWith('/wp-content/plugins/')) {
+    return res.status(410).send('410 Gone');
+  }
+
+  // 301 redirect /studio/instructors/<name>/ to /studio/instructors/
+  if (p.startsWith('/studio/instructors/') && p !== '/studio/instructors/') {
     return res.redirect(301, '/studio/instructors/');
   }
+
+  // 301 redirect /studio/ to /studio/instructors/ if no studio index
+  if (p === '/studio/') {
+    if (!fs.existsSync(path.join(__dirname, 'studio', 'index.html'))) {
+      return res.redirect(301, '/studio/instructors/');
+    }
+  }
+
+  // 301 redirect trailing-slash page URLs to .html equivalents
+  // e.g. /contact/ -> /contact.html, /news/ -> /news.html
+  const match = /^\/([a-z0-9_-]+)\/$/i.exec(p);
+  if (match) {
+    const htmlFile = path.join(__dirname, `${match[1]}.html`);
+    if (fs.existsSync(htmlFile)) {
+      return res.redirect(301, `/${match[1]}.html`);
+    }
+  }
+
   next();
 });
 
