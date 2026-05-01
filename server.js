@@ -333,6 +333,16 @@ app.use((req, res, next) => {
     }
   }
 
+  // 301 redirect extensionless URLs to .html equivalents
+  // e.g. /contact -> /contact.html (prevents duplicate content from express.static extensions)
+  const extlessMatch = /^\/([a-z0-9_-]+)$/i.exec(p);
+  if (extlessMatch) {
+    const htmlFile = path.join(__dirname, `${extlessMatch[1]}.html`);
+    if (fs.existsSync(htmlFile)) {
+      return res.redirect(301, `/${extlessMatch[1]}.html`);
+    }
+  }
+
   next();
 });
 

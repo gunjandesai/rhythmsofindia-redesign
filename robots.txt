@@ -13,6 +13,7 @@ Disallow: /comments/
 Disallow: /2023/
 Disallow: /2024/
 Disallow: /2025/
+Disallow: /2026/
 Disallow: /wp-content/plugins/
 Disallow: /*?s=
 Disallow: /*?wcs_timestamp=
