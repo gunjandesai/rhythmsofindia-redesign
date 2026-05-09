@@ -33,3 +33,4 @@ User-agent: Googlebot-Image
 Allow: /
 
 Sitemap: https://rhythmsofindia.com/sitemap.xml
+IndexNow: https://rhythmsofindia.com/f8e2d1c4b7a6e3f9d0c5b8a1e4f7d2c6.txt

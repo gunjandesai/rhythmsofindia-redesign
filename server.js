@@ -56,6 +56,29 @@ app.post('/api/admin/logout', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
+// ── IndexNow: notify search engines of content changes ────────────────
+const INDEXNOW_KEY = 'f8e2d1c4b7a6e3f9d0c5b8a1e4f7d2c6';
+const SITE_HOST = 'rhythmsofindia.com';
+
+async function notifyIndexNow(urlPaths) {
+  const urlList = urlPaths.map(p => `https://${SITE_HOST}${p}`);
+  try {
+    const resp = await fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        host: SITE_HOST,
+        key: INDEXNOW_KEY,
+        keyLocation: `https://${SITE_HOST}/${INDEXNOW_KEY}.txt`,
+        urlList
+      })
+    });
+    console.log(`IndexNow notified (${resp.status}):`, urlList);
+  } catch (err) {
+    console.error('IndexNow notification failed:', err.message);
+  }
+}
+
 // ── Helper: rebuild HTML files from JSON data ─────────────────────────
 function rebuildEvents() {
   execSync('node scripts/build-events-html.js', { cwd: __dirname, stdio: 'pipe' });
@@ -84,6 +107,7 @@ app.post('/api/admin/events', requireAuth, (req, res) => {
   events.sort((a, b) => b.date.localeCompare(a.date));
   fs.writeFileSync(EVENTS_JSON, JSON.stringify(events, null, 2), 'utf-8');
   rebuildEvents();
+  notifyIndexNow(['/events.html']);
   res.json({ success: true, message: 'Event added and page rebuilt.' });
 });
 
@@ -101,6 +125,7 @@ app.put('/api/admin/events/:index', requireAuth, (req, res) => {
   events.sort((a, b) => b.date.localeCompare(a.date));
   fs.writeFileSync(EVENTS_JSON, JSON.stringify(events, null, 2), 'utf-8');
   rebuildEvents();
+  notifyIndexNow(['/events.html']);
   res.json({ success: true, message: 'Event updated and page rebuilt.' });
 });
 
@@ -113,6 +138,7 @@ app.delete('/api/admin/events/:index', requireAuth, (req, res) => {
   events.splice(idx, 1);
   fs.writeFileSync(EVENTS_JSON, JSON.stringify(events, null, 2), 'utf-8');
   rebuildEvents();
+  notifyIndexNow(['/events.html']);
   res.json({ success: true, message: 'Event deleted and page rebuilt.' });
 });
 
@@ -140,6 +166,7 @@ app.post('/api/admin/timetable', requireAuth, (req, res) => {
   classes.sort((a, b) => b.date.localeCompare(a.date));
   fs.writeFileSync(TIMETABLE_JSON, JSON.stringify(classes, null, 2), 'utf-8');
   rebuildTimetable();
+  notifyIndexNow(['/timetable.html']);
   res.json({ success: true, message: `${items.length} class(es) added and page rebuilt.` });
 });
 
@@ -157,6 +184,7 @@ app.put('/api/admin/timetable/:index', requireAuth, (req, res) => {
   classes.sort((a, b) => b.date.localeCompare(a.date));
   fs.writeFileSync(TIMETABLE_JSON, JSON.stringify(classes, null, 2), 'utf-8');
   rebuildTimetable();
+  notifyIndexNow(['/timetable.html']);
   res.json({ success: true, message: 'Class updated and page rebuilt.' });
 });
 
@@ -169,6 +197,7 @@ app.delete('/api/admin/timetable/:index', requireAuth, (req, res) => {
   classes.splice(idx, 1);
   fs.writeFileSync(TIMETABLE_JSON, JSON.stringify(classes, null, 2), 'utf-8');
   rebuildTimetable();
+  notifyIndexNow(['/timetable.html']);
   res.json({ success: true, message: 'Class deleted and page rebuilt.' });
 });
 
