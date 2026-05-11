@@ -340,6 +340,11 @@ app.use((req, res, next) => {
     return res.status(410).send('410 Gone');
   }
 
+  // 301 redirect /studio/registration/ to /registration.html
+  if (p === '/studio/registration/' || p === '/studio/registration') {
+    return res.redirect(301, '/registration.html');
+  }
+
   // 301 redirect /studio/instructors/<name>/ to /studio/instructors/
   if (p.startsWith('/studio/instructors/') && p !== '/studio/instructors/') {
     return res.redirect(301, '/studio/instructors/');
