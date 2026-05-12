@@ -20,7 +20,9 @@ Disallow: /*?wcs_timestamp=
 Disallow: /*?gf_confirmation=
 Disallow: */feed/
 
-# Specifically welcome Bing and Google crawlers
+# ---------------------------------------------------------------
+# Traditional search engine crawlers
+# ---------------------------------------------------------------
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
@@ -28,8 +30,118 @@ Crawl-delay: 1
 User-agent: Googlebot
 Allow: /
 
-# Allow image crawlers for better image SEO
 User-agent: Googlebot-Image
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+# ---------------------------------------------------------------
+# AI search & assistant crawlers — explicitly allowed so that
+# Rhythms of India appears in ChatGPT, Gemini, Claude, Perplexity,
+# Copilot and other AI-powered search experiences.
+# ---------------------------------------------------------------
+
+# OpenAI — ChatGPT search & training
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Google — Gemini / AI Overviews / Vertex AI
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+# Anthropic — Claude
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Microsoft Copilot / Bing Chat
+User-agent: msnbot
+Allow: /
+
+# Apple Intelligence / Siri
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Meta AI / Llama
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+# Amazon AI
+User-agent: Amazonbot
+Allow: /
+
+# Common Crawl — used to train many LLMs
+User-agent: CCBot
+Allow: /
+
+# Cohere
+User-agent: cohere-ai
+Allow: /
+
+User-agent: cohere-training-data-crawler
+Allow: /
+
+# Mistral AI
+User-agent: MistralAI-User
+Allow: /
+
+# You.com
+User-agent: YouBot
+Allow: /
+
+# Diffbot (used by Perplexity, Bing and others)
+User-agent: Diffbot
+Allow: /
+
+# Bytespider (TikTok / Doubao)
+User-agent: Bytespider
+Allow: /
+
+# DeepSeek
+User-agent: DeepSeekBot
 Allow: /
 
 Sitemap: https://rhythmsofindia.com/sitemap.xml
