@@ -324,25 +324,27 @@ app.use((req, res, next) => {
     return res.status(410).send('410 Gone');
   }
 
-  // 301 redirect old WordPress date-based blog post URLs to homepage
-  if (/^\/\d{4}\/\d{2}\/\d{2}\//.test(p)) {
-    return res.redirect(301, 'https://rhythmsofindia.com/');
+  // 410 Gone for old WordPress date-based blog post URLs.
+  // Using 410 (not 301) tells Google to permanently drop these from the index,
+  // which resolves Search Console "Page with redirect" issues for legacy paths.
+  if (/^\/\d{4}\/\d{2}\/\d{2}\//.test(p) || /^\/\d{4}\/\d{2}\/?$/.test(p) || /^\/\d{4}\/?$/.test(p)) {
+    return res.status(410).send('410 Gone');
   }
 
-  // 301 redirect old WordPress paths to relevant pages
-  if (p.startsWith('/class/') || p.startsWith('/wcs-room/')) {
-    return res.redirect(301, '/timetable.html');
-  }
-  if (p.startsWith('/tag/') || p.startsWith('/category/')) {
-    return res.redirect(301, 'https://rhythmsofindia.com/');
+  // 410 Gone for retired WordPress taxonomy / CPT paths.
+  // These pages no longer exist; signal a permanent removal so Google deindexes them.
+  if (p.startsWith('/class/') || p.startsWith('/wcs-room/') ||
+      p.startsWith('/tag/')   || p.startsWith('/category/')) {
+    return res.status(410).send('410 Gone');
   }
   if (p.startsWith('/wp-content/plugins/')) {
     return res.status(410).send('410 Gone');
   }
 
-  // 301 redirect /studio/registration/ to /registration.html
+  // 410 Gone for legacy /studio/registration[/] path that previously redirected.
+  // Internal navigation already links to /registration.html directly.
   if (p === '/studio/registration/' || p === '/studio/registration') {
-    return res.redirect(301, '/registration.html');
+    return res.status(410).send('410 Gone');
   }
 
   // 301 redirect /studio/instructors/<name>/ to /studio/instructors/

@@ -5,20 +5,16 @@ Disallow: /deploy.zip
 Disallow: /scripts/
 Disallow: /data/
 Disallow: /admin/
-Disallow: /class/
-Disallow: /tag/
-Disallow: /category/
-Disallow: /wcs-room/
-Disallow: /comments/
-Disallow: /2023/
-Disallow: /2024/
-Disallow: /2025/
-Disallow: /2026/
 Disallow: /wp-content/plugins/
 Disallow: /*?s=
 Disallow: /*?wcs_timestamp=
 Disallow: /*?gf_confirmation=
 Disallow: */feed/
+# NOTE: Legacy WordPress paths (/class/, /tag/, /category/, /wcs-room/,
+# /2023/, /2024/, /2025/, /2026/ date archives) are NOT disallowed here on
+# purpose. The server returns HTTP 410 Gone for those paths so Google can
+# crawl them once, see the 410, and permanently drop them from the index.
+# Re-adding Disallow rules would prevent that deindexation.
 
 # ---------------------------------------------------------------
 # Traditional search engine crawlers
