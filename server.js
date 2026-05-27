@@ -305,9 +305,23 @@ app.get('/', (req, res, next) => {
   next();
 });
 
-// Strip stale WordPress query params (wcs_timestamp, gf_confirmation) via 301
+// Strip stale WordPress query params (wcs_timestamp, gf_confirmation) via 301.
+// IMPORTANT: skip this for paths that the next middleware will 410 anyway,
+// otherwise Google sees 301 -> 410 and reports both "Page with redirect"
+// AND "Not found (404)" for the same dead URL.
 app.use((req, res, next) => {
   if (req.query.wcs_timestamp || req.query.gf_confirmation) {
+    const p = req.path;
+    const willBe410 =
+      p.startsWith('/class/') || p.startsWith('/wcs-room/') ||
+      p.startsWith('/tag/')   || p.startsWith('/category/') ||
+      p.startsWith('/wp-content/plugins/') ||
+      /^\/\d{4}\/\d{2}\/\d{2}\//.test(p) ||
+      /^\/\d{4}\/\d{2}\/?$/.test(p) ||
+      /^\/\d{4}\/?$/.test(p) ||
+      p.endsWith('/feed/') || p === '/comments/feed' ||
+      p === '/studio/registration/' || p === '/studio/registration';
+    if (willBe410) return next();
     return res.redirect(301, `https://rhythmsofindia.com${req.path}`);
   }
   next();
