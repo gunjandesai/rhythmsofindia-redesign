@@ -305,23 +305,9 @@ app.get('/', (req, res, next) => {
   next();
 });
 
-// Strip stale WordPress query params (wcs_timestamp, gf_confirmation) via 301.
-// IMPORTANT: skip this for paths that the next middleware will 410 anyway,
-// otherwise Google sees 301 -> 410 and reports both "Page with redirect"
-// AND "Not found (404)" for the same dead URL.
+// Strip stale WordPress query params (wcs_timestamp, gf_confirmation) via 301
 app.use((req, res, next) => {
   if (req.query.wcs_timestamp || req.query.gf_confirmation) {
-    const p = req.path;
-    const willBe410 =
-      p.startsWith('/class/') || p.startsWith('/wcs-room/') ||
-      p.startsWith('/tag/')   || p.startsWith('/category/') ||
-      p.startsWith('/wp-content/plugins/') ||
-      /^\/\d{4}\/\d{2}\/\d{2}\//.test(p) ||
-      /^\/\d{4}\/\d{2}\/?$/.test(p) ||
-      /^\/\d{4}\/?$/.test(p) ||
-      p.endsWith('/feed/') || p === '/comments/feed' ||
-      p === '/studio/registration/' || p === '/studio/registration';
-    if (willBe410) return next();
     return res.redirect(301, `https://rhythmsofindia.com${req.path}`);
   }
   next();
@@ -333,32 +319,60 @@ app.use((req, res, next) => {
   if (req.method !== 'GET') return next();
   const p = req.path;
 
-  // 410 Gone for old WordPress feed URLs
+  // ── Legacy WordPress URL redirects ──────────────────────────────────
+  // All retired WordPress URLs now 301-redirect to the most relevant live
+  // page (instead of returning 410 Gone). This resolves Search Console
+  // "Not found (404)" issues by sending old paths to a valid destination.
+
+  // Specific legacy paths with a best-match live equivalent (checked first).
+  const legacyRedirects = {
+    '/class/performance-at-benaroya-hall/': '/events.html',
+    '/class/performance-at-benaroya-hall': '/events.html',
+    '/tag/bhangra/': '/timetable.html',
+    '/tag/bhangra': '/timetable.html'
+  };
+  if (legacyRedirects[p]) {
+    return res.redirect(301, legacyRedirects[p]);
+  }
+
+  // Old WordPress feed URLs → homepage
   if (p.endsWith('/feed/') || p === '/comments/feed') {
-    return res.status(410).send('410 Gone');
+    return res.redirect(301, '/');
   }
 
-  // 410 Gone for old WordPress date-based blog post URLs.
-  // Using 410 (not 301) tells Google to permanently drop these from the index,
-  // which resolves Search Console "Page with redirect" issues for legacy paths.
+  // Old WordPress date-based blog archives → news page
   if (/^\/\d{4}\/\d{2}\/\d{2}\//.test(p) || /^\/\d{4}\/\d{2}\/?$/.test(p) || /^\/\d{4}\/?$/.test(p)) {
-    return res.status(410).send('410 Gone');
+    return res.redirect(301, '/news.html');
   }
 
-  // 410 Gone for retired WordPress taxonomy / CPT paths.
-  // These pages no longer exist; signal a permanent removal so Google deindexes them.
-  if (p.startsWith('/class/') || p.startsWith('/wcs-room/') ||
-      p.startsWith('/tag/')   || p.startsWith('/category/')) {
-    return res.status(410).send('410 Gone');
+  // Retired WordPress class custom-post-type → class timetable
+  if (p.startsWith('/class/')) {
+    return res.redirect(301, '/timetable.html');
   }
+
+  // Retired WordPress studio room custom-post-type → studio rooms page
+  if (p.startsWith('/wcs-room/')) {
+    return res.redirect(301, '/studio/rooms/');
+  }
+
+  // Retired WordPress category archives → news page
+  if (p.startsWith('/category/')) {
+    return res.redirect(301, '/news.html');
+  }
+
+  // Retired WordPress tag archives → homepage
+  if (p.startsWith('/tag/')) {
+    return res.redirect(301, '/');
+  }
+
+  // Old WordPress plugin asset paths → homepage
   if (p.startsWith('/wp-content/plugins/')) {
-    return res.status(410).send('410 Gone');
+    return res.redirect(301, '/');
   }
 
-  // 410 Gone for legacy /studio/registration[/] path that previously redirected.
-  // Internal navigation already links to /registration.html directly.
+  // Legacy /studio/registration[/] → registration page
   if (p === '/studio/registration/' || p === '/studio/registration') {
-    return res.status(410).send('410 Gone');
+    return res.redirect(301, '/registration.html');
   }
 
   // 301 redirect /studio/instructors/<name>/ to /studio/instructors/

@@ -12,9 +12,9 @@ Disallow: /*?gf_confirmation=
 Disallow: */feed/
 # NOTE: Legacy WordPress paths (/class/, /tag/, /category/, /wcs-room/,
 # /2023/, /2024/, /2025/, /2026/ date archives) are NOT disallowed here on
-# purpose. The server returns HTTP 410 Gone for those paths so Google can
-# crawl them once, see the 410, and permanently drop them from the index.
-# Re-adding Disallow rules would prevent that deindexation.
+# purpose. The server 301-redirects those paths to the most relevant live
+# page so Google can crawl them, follow the redirect, and update the index.
+# Re-adding Disallow rules would prevent Google from seeing those redirects.
 
 # ---------------------------------------------------------------
 # Traditional search engine crawlers
