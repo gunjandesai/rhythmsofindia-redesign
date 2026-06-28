@@ -6,7 +6,9 @@
     "start": "node server.js",
     "build:events": "node scripts/build-events-html.js",
     "build:timetable": "node scripts/build-timetable-html.js",
-    "build": "npm run build:events && npm run build:timetable"
+    "build:roitv": "node scripts/build-roitv-html.js",
+    "sync:youtube": "node scripts/sync-youtube-videos.js",
+    "build": "npm run build:events && npm run build:timetable && npm run build:roitv"
   },
   "dependencies": {
     "@azure/communication-email": "^1.1.0",
