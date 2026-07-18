@@ -4,10 +4,22 @@ on:
   push:
     branches:
       - master
+  # Deploy after the automated video sync finishes. The sync workflow pushes
+  # with the default GITHUB_TOKEN, which by design does NOT trigger the push
+  # event above, so we listen for its completion here instead.
+  workflow_run:
+    workflows: ["Sync YouTube Videos"]
+    types:
+      - completed
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # Skip when the triggering sync run failed; always run for pushes/dispatch.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
 
     steps:
       - uses: actions/checkout@v4
