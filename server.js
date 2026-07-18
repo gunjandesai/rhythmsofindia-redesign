@@ -74,10 +74,55 @@ async function notifyIndexNow(urlPaths) {
       })
     });
     console.log(`IndexNow notified (${resp.status}):`, urlList);
+    return { status: resp.status, count: urlList.length };
   } catch (err) {
     console.error('IndexNow notification failed:', err.message);
+    return { status: 0, count: urlList.length, error: err.message };
   }
 }
+
+// ── Legacy WordPress URLs flagged in Google Search Console ────────────
+// These retired paths now 301-redirect to live pages (see redirect
+// middleware below). Resubmitting them via IndexNow prompts Bing and other
+// IndexNow engines to recrawl the old URLs, discover the 301, and update
+// their index. Hack-probe paths (/wp-login.php, /xmlrpc.php, etc.) are
+// intentionally excluded — they should stay 404.
+const LEGACY_REDIRECT_URLS = [
+  // Retired tag archives → homepage / timetable
+  '/tag/performance/', '/tag/dance/', '/tag/redmond/', '/tag/washington/',
+  '/tag/heritage/', '/tag/india/', '/tag/bhangra/',
+  // Retired class custom-post-type → timetable
+  '/class/bollywood-bhangra-dance-2/', '/class/bollywood-bhangra-dance/',
+  '/class/beginner-bhangra-2/', '/class/advance-bhangra-3/',
+  '/class/diwali-at-seattle-asian-art-museum/', '/class/united-festival/',
+  // Retired category archives → news
+  '/category/shows/', '/category/news/',
+  // Retired studio room + registration paths
+  '/wcs-room/redmond/', '/studio/registration/',
+  // Retired instructor pages → instructors index
+  '/studio/instructors/shub-c-kaur/', '/studio/instructors/avani-desai/',
+  '/studio/instructors/bharat-kaira/', '/studio/',
+  // Retired WordPress plugin assets → homepage
+  '/wp-content/plugins/youtube-embed-plus/',
+  '/wp-content/plugins/youtube-embed-plus/scripts/',
+  // Old WordPress feed URLs → homepage
+  '/wcs-room/redmond/feed/', '/tag/performance/feed/',
+  // Old date-based blog archives → news
+  '/2016/01/22/performance-and-dance-workshop-at-unity-ball-bellingham-washington/',
+  '/2023/01/30/celebrating-asia-benaroya-hall/',
+  '/2023/03/23/holi-2023-celebration-seattle/',
+  '/2023/05/06/conference-for-agricultural-worker-health-seattle-hyatt/',
+  '/2023/05/18/seattle-events-this-week-celebrate-asian-american-pacific-island-heritage-and-more/',
+  // Old trailing-slash page URLs → .html equivalents
+  '/contact/', '/timetable/', '/news/'
+];
+
+// Current live/canonical pages worth (re)indexing alongside the redirects.
+const LIVE_CANONICAL_URLS = [
+  '/', '/timetable.html', '/registration.html', '/events.html', '/news.html',
+  '/testimonials.html', '/photos.html', '/roi-tv/', '/studio/instructors/',
+  '/studio/rooms/', '/studio/membership/'
+];
 
 // ── Helper: rebuild HTML files from JSON data ─────────────────────────
 function rebuildEvents() {
@@ -201,6 +246,29 @@ app.delete('/api/admin/timetable/:index', requireAuth, (req, res) => {
   res.json({ success: true, message: 'Class deleted and page rebuilt.' });
 });
 
+// ── SEO: resubmit legacy redirect + live URLs to IndexNow ─────────────
+// Nudges Bing and other IndexNow search engines to recrawl retired
+// WordPress URLs (which now 301) and refresh the live pages, helping clear
+// Search Console "Not found (404)" and "Page with redirect" reports faster.
+app.post('/api/admin/reindex-legacy', requireAuth, async (req, res) => {
+  const urls = [...LEGACY_REDIRECT_URLS, ...LIVE_CANONICAL_URLS];
+  const result = await notifyIndexNow(urls);
+  if (result.status >= 200 && result.status < 300) {
+    return res.json({
+      success: true,
+      message: `Resubmitted ${result.count} URLs to IndexNow (HTTP ${result.status}).`,
+      count: result.count
+    });
+  }
+  res.status(502).json({
+    success: false,
+    message: result.error
+      ? `IndexNow request failed: ${result.error}`
+      : `IndexNow returned HTTP ${result.status}.`,
+    count: result.count
+  });
+});
+
 // Contact form email endpoint
 app.post('/api/contact', async (req, res) => {
     const { name, email, subject, message, recaptchaToken } = req.body;
@@ -305,14 +373,6 @@ app.get('/', (req, res, next) => {
   next();
 });
 
-// Strip stale WordPress query params (wcs_timestamp, gf_confirmation) via 301
-app.use((req, res, next) => {
-  if (req.query.wcs_timestamp || req.query.gf_confirmation) {
-    return res.redirect(301, `https://rhythmsofindia.com${req.path}`);
-  }
-  next();
-});
-
 // ── URL redirect & cleanup middleware ─────────────────────────────────
 // Uses plain string operations instead of Express route patterns for reliability
 app.use((req, res, next) => {
@@ -407,6 +467,18 @@ app.use((req, res, next) => {
     }
   }
 
+  next();
+});
+
+// Strip stale WordPress query params (wcs_timestamp, gf_confirmation) via 301.
+// Runs AFTER the legacy path redirects above, so legacy paths that carry these
+// params (e.g. /class/x/?wcs_timestamp=…) are 301'd straight to their live
+// destination in a single hop rather than first stripping the query and then
+// redirecting the path — avoiding a redirect chain.
+app.use((req, res, next) => {
+  if (req.query.wcs_timestamp || req.query.gf_confirmation) {
+    return res.redirect(301, `https://rhythmsofindia.com${req.path}`);
+  }
   next();
 });
 

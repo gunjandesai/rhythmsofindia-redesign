@@ -129,6 +129,7 @@
         <div class="tabs">
             <button class="tab-btn active" data-tab="events"><i class="fas fa-calendar-alt"></i> Events</button>
             <button class="tab-btn" data-tab="timetable"><i class="fas fa-clock"></i> Timetable</button>
+            <button class="tab-btn" data-tab="seo"><i class="fas fa-magnifying-glass-chart"></i> SEO</button>
         </div>
 
         <!-- Events Tab -->
@@ -218,6 +219,16 @@
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+
+        <!-- SEO Tab -->
+        <div class="tab-content" id="tab-seo">
+            <div class="form-card">
+                <h2><i class="fas fa-magnifying-glass-chart"></i> Search Indexing</h2>
+                <p class="bulk-info">Resubmit retired WordPress URLs (which now 301-redirect) and the live pages to IndexNow. This prompts Bing and other IndexNow search engines to recrawl and clear Search Console "Not found (404)" and "Page with redirect" reports faster. Google does not use IndexNow directly — use "Validate Fix" in Search Console for Google.</p>
+                <button type="button" class="btn-primary" id="btnReindex"><i class="fas fa-paper-plane"></i> Resubmit legacy URLs to IndexNow</button>
+                <p class="bulk-info" id="reindexResult" style="margin-top:12px;margin-bottom:0;"></p>
+            </div>
         </div>
     </div>
 
@@ -402,6 +413,24 @@
                 btn.classList.add('active');
                 document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
             });
+        });
+
+        // ── SEO: resubmit legacy URLs to IndexNow ──
+        document.getElementById('btnReindex').addEventListener('click', async () => {
+            const btn = document.getElementById('btnReindex');
+            const resultEl = document.getElementById('reindexResult');
+            btn.disabled = true;
+            resultEl.textContent = 'Submitting…';
+            try {
+                const data = await api('POST', '/reindex-legacy');
+                resultEl.textContent = data.message;
+                showToast(data.message, 'success');
+            } catch (err) {
+                resultEl.textContent = err.message;
+                showToast(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
         });
 
         // ── Events ──
