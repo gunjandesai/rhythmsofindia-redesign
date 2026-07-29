@@ -6,18 +6,13 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  <url>
-    <loc>https://rhythmsofindia.com/llms.txt</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://rhythmsofindia.com/llms-full.txt</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
+  <!--
+    Note: /llms.txt and /llms-full.txt are intentionally NOT listed here.
+    They are plain-text resources for AI/LLM crawlers, not indexable search
+    results. Google reports them as "Crawled - currently not indexed" if
+    submitted via sitemap. They remain discoverable via the
+    <link rel="alternate"> tags in index.html and robots.txt.
+  -->
   <url>
     <loc>https://rhythmsofindia.com/timetable.html</loc>
     <lastmod>2026-05-14</lastmod>
