@@ -225,7 +225,7 @@
         <div class="tab-content" id="tab-seo">
             <div class="form-card">
                 <h2><i class="fas fa-magnifying-glass-chart"></i> Search Indexing</h2>
-                <p class="bulk-info">Resubmit retired WordPress URLs (which now 301-redirect) and the live pages to IndexNow. This prompts Bing and other IndexNow search engines to recrawl and clear Search Console "Not found (404)" and "Page with redirect" reports faster. Google does not use IndexNow directly — use "Validate Fix" in Search Console for Google.</p>
+                <p class="bulk-info">Resubmit retired WordPress redirects and live pages to IndexNow for Bing and other participating search engines. In Google Search Console, "Page with redirect" is an expected exclusion for these retired URLs, not an indexing error. Do not use "Validate Fix" unless the redirect was removed and the old URL should now be indexed.</p>
                 <button type="button" class="btn-primary" id="btnReindex"><i class="fas fa-paper-plane"></i> Resubmit legacy URLs to IndexNow</button>
                 <p class="bulk-info" id="reindexResult" style="margin-top:12px;margin-bottom:0;"></p>
             </div>
