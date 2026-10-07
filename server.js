@@ -8,6 +8,16 @@ const { EmailClient } = require('@azure/communication-email');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// Canonical host: 301 www.rhythmsofindia.com → rhythmsofindia.com so Google
+// only sees one version of each page. GET/HEAD only so form POSTs aren't broken.
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase();
+  if ((req.method === 'GET' || req.method === 'HEAD') && host.startsWith('www.rhythmsofindia.com')) {
+    return res.redirect(301, `https://rhythmsofindia.com${req.originalUrl}`);
+  }
+  next();
+});
+
 // Enable gzip compression for all responses
 app.use(compression());
 
