@@ -386,7 +386,7 @@ app.get('/', (req, res, next) => {
 // ── URL redirect & cleanup middleware ─────────────────────────────────
 // Uses plain string operations instead of Express route patterns for reliability
 app.use((req, res, next) => {
-  if (req.method !== 'GET') return next();
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
   const p = req.path;
 
   // ── Legacy WordPress URL redirects ──────────────────────────────────
