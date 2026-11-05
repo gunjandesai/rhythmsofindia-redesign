@@ -11,8 +11,11 @@ const PORT = process.env.PORT || 8080;
 // Canonical host: 301 www.rhythmsofindia.com → rhythmsofindia.com so Google
 // only sees one version of each page. GET/HEAD only so form POSTs aren't broken.
 app.use((req, res, next) => {
-  const host = (req.headers.host || '').toLowerCase();
-  if ((req.method === 'GET' || req.method === 'HEAD') && host.startsWith('www.rhythmsofindia.com')) {
+  // Azure App Service may rewrite Host to the *.azurewebsites.net name and pass
+  // the original hostname in X-Forwarded-Host / Disguised-Host instead.
+  const host = [req.headers['x-forwarded-host'], req.headers['disguised-host'], req.headers['x-original-host'], req.headers.host]
+    .filter(Boolean).join(',').toLowerCase();
+  if ((req.method === 'GET' || req.method === 'HEAD') && /(^|,)\s*www\.rhythmsofindia\.com(:\d+)?\s*(,|$)/.test(host)) {
     return res.redirect(301, `https://rhythmsofindia.com${req.originalUrl}`);
   }
   next();
