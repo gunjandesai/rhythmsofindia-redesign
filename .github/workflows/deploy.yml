@@ -33,6 +33,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Drop past classes from the timetable and homepage Event markup on every
+      # deploy (weekly sync runs trigger a deploy, so this happens at least weekly).
+      - name: Rebuild timetable and class event markup
+        run: npm run build:timetable
+
       - name: Azure Login
         uses: azure/login@v2
         with:
