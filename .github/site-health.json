@@ -1,0 +1,8 @@
+{
+  "site": "https://rhythmsofindia.com",
+  "sitemap": "/sitemap.xml",
+  "files": [
+    { "path": "/llms.txt", "minLength": 200 },
+    { "path": "/llms-full.txt", "minLength": 1000 }
+  ]
+}

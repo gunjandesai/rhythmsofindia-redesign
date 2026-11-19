@@ -1,0 +1,52 @@
+name: Site health
+
+# Daily deep check of the live site (.github/site-health.mjs, settings in .github/site-health.json). On failure it
+# opens one GitHub issue labelled site-health, or comments on the one already open; when checks pass again it
+# closes that issue. Read-only: it only sends side-effect-free requests to the live site.
+on:
+  schedule:
+    - cron: '23 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: site-health
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run checks
+        id: run
+        continue-on-error: true
+        run: node .github/site-health.mjs --config .github/site-health.json --out report.md
+      - name: Open, update or close the site-health issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OUTCOME: ${{ steps.run.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create site-health --color B60205 --description "Automated live-site health alerts" --force >/dev/null
+          open=$(gh issue list --label site-health --state open --json number --jq '.[0].number // empty')
+          printf '%s\n\n[Workflow run](%s)\n' "$(cat report.md 2>/dev/null || echo 'The check script crashed; see the workflow run.')" "$RUN_URL" > body.md
+          if [ "$OUTCOME" != "success" ]; then
+            if [ -n "$open" ]; then
+              gh issue comment "$open" --body-file body.md
+            else
+              gh issue create --title "Live site health check failing" --label site-health --body-file body.md
+            fi
+            exit 1
+          elif [ -n "$open" ]; then
+            gh issue close "$open" --comment "All checks pass again. $RUN_URL"
+          fi
